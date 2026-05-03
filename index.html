@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nour EL KAMEL — AI Research Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #05050f;
+      --bg2: #0a0a1e;
+      --card: rgba(14, 14, 38, 0.85);
+      --border: rgba(123, 47, 247, 0.25);
+      --purple: #7b2ff7;
+      --cyan: #00d4ff;
+      --gold: #f5c842;
+      --text: #d8d8f0;
+      --muted: #7878a0;
+      --white: #f0f0ff;
+      --glow-purple: rgba(123, 47, 247, 0.35);
+      --glow-cyan: rgba(0, 212, 255, 0.3);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+    a { color: var(--cyan); text-decoration: none; transition: color .2s; }
+    a:hover { color: var(--purple); }
+    h1, h2, h3 { font-weight: 700; color: var(--white); }
+
+    /* ── Starfield Canvas ── */
+    #starfield {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
+    }
+
+    /* ── Nebula blobs ── */
+    .nebula {
+      position: fixed; border-radius: 50%;
+      filter: blur(80px); pointer-events: none; z-index: 0;
+      animation: nebulaDrift 20s ease-in-out infinite alternate;
+    }
+    .nebula-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(123,47,247,.18) 0%, transparent 70%); top: -150px; left: -100px; animation-delay: 0s; }
+    .nebula-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(0,212,255,.12) 0%, transparent 70%); top: 40%; right: -120px; animation-delay: -7s; }
+    .nebula-3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(245,200,66,.10) 0%, transparent 70%); bottom: 10%; left: 20%; animation-delay: -14s; }
+    @keyframes nebulaDrift {
+      0% { transform: translate(0,0) scale(1); }
+      100% { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
+
+    /* ── Navigation ── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: .9rem 0;
+      background: rgba(5, 5, 15, 0.75);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container { display: flex; justify-content: space-between; align-items: center; }
+    .nav-logo { font-family: 'Space Mono', monospace; font-size: .9rem; color: var(--cyan); letter-spacing: .05em; }
+    .nav-logo span { color: var(--purple); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { font-size: .85rem; font-weight: 500; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; transition: color .2s; }
+    .nav-links a:hover { color: var(--cyan); }
+
+    /* ── Hero ── */
+    #hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 6rem 0 4rem;
+    }
+    .hero-content { max-width: 750px; }
+    .hero-badge {
+      display: inline-block; padding: .35rem .9rem; border-radius: 2rem;
+      background: rgba(123,47,247,.15); border: 1px solid rgba(123,47,247,.4);
+      font-size: .75rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--purple); margin-bottom: 1.5rem;
+    }
+    .hero-name {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      line-height: 1.1; margin-bottom: .8rem;
+      background: linear-gradient(135deg, var(--white) 0%, var(--cyan) 50%, var(--purple) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-title {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--cyan); margin-bottom: 1.5rem; font-weight: 400;
+    }
+    .hero-subtitle { font-size: 1.05rem; color: var(--text); max-width: 620px; margin-bottom: 2.5rem; }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      padding: .75rem 1.8rem; border-radius: .5rem; font-size: .9rem; font-weight: 600;
+      letter-spacing: .04em; display: inline-flex; align-items: center; gap: .5rem;
+      transition: all .25s; cursor: pointer; border: none; font-family: inherit;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), #4a1fa0);
+      color: #fff; box-shadow: 0 0 20px var(--glow-purple);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 35px var(--glow-purple); color: #fff; }
+    .btn-outline {
+      background: transparent; color: var(--cyan);
+      border: 1.5px solid var(--cyan); box-shadow: 0 0 12px var(--glow-cyan);
+    }
+    .btn-outline:hover { background: rgba(0,212,255,.1); transform: translateY(-2px); color: var(--cyan); }
+    .hero-social { display: flex; gap: 1.2rem; margin-top: 2.5rem; }
+    .social-icon {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); transition: all .25s; background: var(--card);
+    }
+    .social-icon:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 14px var(--glow-cyan); }
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      color: var(--muted); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+      animation: bounceDown 2s ease-in-out infinite;
+    }
+    @keyframes bounceDown { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+
+    /* ── Section Headers ── */
+    .section { padding: 6rem 0; position: relative; z-index: 1; }
+    .section-header { text-align: center; margin-bottom: 4rem; }
+    .section-tag {
+      font-family: 'Space Mono', monospace; font-size: .75rem; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--purple); display: block; margin-bottom: .8rem;
+    }
+    .section-title { font-size: clamp(1.8rem, 3vw, 2.5rem); color: var(--white); }
+    .section-divider {
+      width: 60px; height: 3px; margin: 1rem auto 0;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      border-radius: 2px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 1rem; padding: 1.8rem;
+      backdrop-filter: blur(12px);
+      transition: border-color .25s, box-shadow .25s, transform .25s;
+    }
+    .card:hover {
+      border-color: rgba(123,47,247,.5);
+      box-shadow: 0 0 30px rgba(123,47,247,.15);
+      transform: translateY(-3px);
+    }
+
+    /* ── About ── */
+    .about-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 3rem; align-items: start; }
+    .about-avatar {
+      aspect-ratio: 1; border-radius: 1.5rem;
+      background: linear-gradient(135deg, rgba(123,47,247,.3), rgba(0,212,255,.2));
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5rem; position: relative; overflow: hidden;
+    }
+    .about-avatar::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(123,47,247,.25), transparent 60%);
+    }
+    .about-text h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--white); }
+    .about-text p { color: var(--text); margin-bottom: 1.2rem; }
+    .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+    .stat { text-align: center; padding: 1rem; background: rgba(123,47,247,.08); border-radius: .75rem; border: 1px solid var(--border); }
+    .stat-num { font-size: 1.8rem; font-weight: 700; color: var(--cyan); font-family: 'Space Mono', monospace; }
+    .stat-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+    /* ── Research Interests ── */
+    .interests-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+    .interest-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 1rem; padding: 1.8rem;
+      transition: all .25s;
+    }
+    .interest-card:hover { border-color: rgba(0,212,255,.4); box-shadow: 0 0 25px var(--glow-cyan); transform: translateY(-3px); }
+    .interest-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .interest-card h3 { font-size: 1rem; color: var(--white); margin-bottom: .6rem; }
+    .interest-card p { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── Experience Timeline ── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+      background: linear-gradient(to bottom, var(--purple), var(--cyan), transparent);
+    }
+    .timeline-item { position: relative; margin-bottom: 3rem; }
+    .timeline-dot {
+      position: absolute; left: -2.55rem; top: .4rem;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--purple); border: 2px solid var(--bg);
+      box-shadow: 0 0 12px var(--glow-purple);
+    }
+    .timeline-item .card { }
+    .timeline-meta { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+    .timeline-role { font-size: 1.05rem; font-weight: 700; color: var(--white); }
+    .timeline-company { color: var(--cyan); font-weight: 600; }
+    .timeline-period {
+      font-family: 'Space Mono', monospace; font-size: .78rem;
+      color: var(--muted); white-space: nowrap;
+      background: rgba(123,47,247,.1); padding: .3rem .7rem; border-radius: 1rem;
+      border: 1px solid var(--border);
+    }
+    .timeline-desc { color: var(--muted); font-size: .88rem; margin-bottom: 1rem; font-style: italic; }
+    .timeline-bullets { list-style: none; }
+    .timeline-bullets li {
+      position: relative; padding-left: 1.2rem; color: var(--text);
+      font-size: .9rem; margin-bottom: .6rem; line-height: 1.5;
+    }
+    .timeline-bullets li::before {
+      content: '›'; position: absolute; left: 0;
+      color: var(--cyan); font-weight: 700;
+    }
+    .tech-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.2rem; }
+    .chip {
+      font-size: .72rem; padding: .25rem .7rem; border-radius: 1rem;
+      background: rgba(0,212,255,.08); border: 1px solid rgba(0,212,255,.2);
+      color: var(--cyan); font-family: 'Space Mono', monospace; letter-spacing: .04em;
+    }
+
+    /* ── Projects ── */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+    .project-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 1rem; padding: 1.8rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      transition: all .25s;
+    }
+    .project-card:hover { border-color: rgba(245,200,66,.35); box-shadow: 0 0 30px rgba(245,200,66,.1); transform: translateY(-4px); }
+    .project-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+    .project-icon { font-size: 2rem; }
+    .project-status {
+      font-size: .7rem; padding: .2rem .6rem; border-radius: 1rem;
+      font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .status-active { background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.3); color: var(--cyan); }
+    .status-building { background: rgba(245,200,66,.1); border: 1px solid rgba(245,200,66,.3); color: var(--gold); }
+    .status-planned { background: rgba(123,47,247,.1); border: 1px solid rgba(123,47,247,.3); color: var(--purple); }
+    .project-card h3 { font-size: 1rem; color: var(--white); }
+    .project-card p { font-size: .88rem; color: var(--muted); line-height: 1.6; flex: 1; }
+    .project-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; }
+    .project-lang {
+      font-family: 'Space Mono', monospace; font-size: .75rem;
+      color: var(--muted); display: flex; align-items: center; gap: .4rem;
+    }
+    .lang-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .lang-python { background: #3572A5; }
+    .project-link {
+      font-size: .8rem; font-weight: 600; color: var(--cyan);
+      display: flex; align-items: center; gap: .35rem; transition: gap .2s;
+    }
+    .project-link:hover { gap: .6rem; }
+
+    /* ── Education ── */
+    .edu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .edu-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 1rem; padding: 1.8rem; transition: all .25s;
+    }
+    .edu-card:hover { border-color: rgba(245,200,66,.4); box-shadow: 0 0 25px rgba(245,200,66,.1); }
+    .edu-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .edu-card h3 { font-size: 1rem; color: var(--white); margin-bottom: .3rem; }
+    .edu-school { color: var(--cyan); font-weight: 600; font-size: .95rem; }
+    .edu-period { font-family: 'Space Mono', monospace; font-size: .78rem; color: var(--muted); margin: .4rem 0; }
+    .edu-courses { font-size: .85rem; color: var(--muted); margin-top: .6rem; }
+
+    /* ── Skills ── */
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+    .skill-group h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .1em; color: var(--purple); margin-bottom: 1rem; font-family: 'Space Mono', monospace; }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .skill-tag {
+      font-size: .8rem; padding: .3rem .8rem; border-radius: .5rem;
+      background: rgba(123,47,247,.1); border: 1px solid var(--border);
+      color: var(--text); transition: all .2s;
+    }
+    .skill-tag:hover { background: rgba(123,47,247,.2); border-color: rgba(123,47,247,.4); }
+
+    /* ── Publication ── */
+    .pub-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 1rem; padding: 2.5rem;
+      display: flex; gap: 2rem; align-items: flex-start;
+      transition: all .25s;
+    }
+    .pub-card:hover { border-color: rgba(245,200,66,.4); box-shadow: 0 0 30px rgba(245,200,66,.1); }
+    .pub-icon { font-size: 3.5rem; flex-shrink: 0; }
+    .pub-venue {
+      display: inline-block; padding: .3rem .8rem;
+      background: rgba(245,200,66,.1); border: 1px solid rgba(245,200,66,.3);
+      color: var(--gold); border-radius: 1rem; font-size: .75rem;
+      font-weight: 600; letter-spacing: .06em; margin-bottom: .8rem;
+    }
+    .pub-title { font-size: 1.15rem; color: var(--white); font-weight: 700; margin-bottom: .5rem; line-height: 1.4; }
+    .pub-meta { font-size: .88rem; color: var(--muted); }
+
+    /* ── Contact ── */
+    #contact { text-align: center; }
+    .contact-card {
+      max-width: 600px; margin: 0 auto;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 1.5rem; padding: 3rem;
+    }
+    .contact-card p { color: var(--muted); margin-bottom: 2rem; }
+    .contact-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem; }
+    .contact-link {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .7rem 1.4rem; border-radius: .6rem;
+      background: rgba(123,47,247,.1); border: 1px solid var(--border);
+      color: var(--text); font-size: .9rem; font-weight: 500;
+      transition: all .25s;
+    }
+    .contact-link:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(0,212,255,.1); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; padding: 2.5rem 0;
+      border-top: 1px solid var(--border);
+      color: var(--muted); font-size: .82rem;
+      font-family: 'Space Mono', monospace;
+    }
+    footer span { color: var(--purple); }
+
+    /* ── Scroll reveal ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; }
+      .about-stats { grid-template-columns: repeat(3,1fr); }
+      .nav-links { display: none; }
+      .pub-card { flex-direction: column; gap: 1rem; }
+      .timeline { padding-left: 1.5rem; }
+      .timeline-dot { left: -2rem; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+  <div class="nebula nebula-1"></div>
+  <div class="nebula nebula-2"></div>
+  <div class="nebula nebula-3"></div>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <div class="nav-logo">nour<span>.</span>elkamel</div>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#publications">Research</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <span class="hero-badge">✦ AI Research Engineer</span>
+        <h1 class="hero-name">Nour EL KAMEL</h1>
+        <p class="hero-title">// LLM Alignment · Multimodal Learning · Efficient Inference</p>
+        <p class="hero-subtitle">
+          Telecom Paris &amp; École Polytechnique graduate. I build and study generative AI systems —
+          from training dynamics and model distillation to production deployment at scale.
+          Currently at <strong style="color:var(--cyan)">SLB AI Lab</strong>, Paris.
+        </p>
+        <div class="hero-cta">
+          <a href="#projects" class="btn btn-primary">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8V1.5Z"/></svg>
+            View Projects
+          </a>
+          <a href="https://linkedin.com/in/nour-elkamel" target="_blank" class="btn btn-outline">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/></svg>
+            LinkedIn
+          </a>
+        </div>
+        <div class="hero-social">
+          <a href="https://github.com/nour-el-kamel" target="_blank" class="social-icon" title="GitHub">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          </a>
+          <a href="https://huggingface.co/nour-elkamel" target="_blank" class="social-icon" title="Hugging Face">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1.5a6.5 6.5 0 1 0 0 13A6.5 6.5 0 0 0 8 1.5zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"/><path d="M5 6.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm6 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-2.5 3.5c.83 0 1.5-.67 1.5-1.5H6c0 .83.67 1.5 1.5 1.5z"/></svg>
+          </a>
+          <a href="mailto:nourelkamelpro@gmail.com" class="social-icon" title="Email">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>
+      scroll
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">✦ About me</span>
+        <h2 class="section-title">Exploring the Frontiers of AI</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="about-grid reveal">
+        <div class="about-avatar">🌌</div>
+        <div class="about-text">
+          <h3>Building AI that understands the world</h3>
+          <p>
+            I'm an AI Research Engineer at <strong style="color:var(--cyan)">SLB (Schlumberger) AI Lab</strong> in Paris,
+            where I work on multimodal language models, retrieval-augmented generation, and VLM distillation for
+            real-world energy industry applications.
+          </p>
+          <p>
+            My work sits at the intersection of research and engineering — I care deeply about understanding
+            <em>why</em> models behave the way they do, running rigorous ablations, and shipping systems that
+            actually perform in production.
+          </p>
+          <p>
+            Graduated from <strong style="color:var(--purple)">Telecom Paris</strong> and
+            <strong style="color:var(--purple)">École Polytechnique (IP Paris)</strong>, majoring in Data Science.
+          </p>
+          <div class="about-stats">
+            <div class="stat"><div class="stat-num">2+</div><div class="stat-label">Years at SLB</div></div>
+            <div class="stat"><div class="stat-num">1</div><div class="stat-label">Publication</div></div>
+            <div class="stat"><div class="stat-num">5+</div><div class="stat-label">OSS Projects</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Research Interests -->
+  <section id="interests" class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">✦ Research Interests</span>
+        <h2 class="section-title">Where I Focus My Energy</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="interests-grid">
+        <div class="interest-card reveal">
+          <div class="interest-icon">⚖️</div>
+          <h3>LLM Alignment</h3>
+          <p>DPO, GRPO, reward modeling, and RLHF from scratch. Understanding how to steer language models toward human values through principled training objectives.</p>
+        </div>
+        <div class="interest-card reveal">
+          <div class="interest-icon">👁️</div>
+          <h3>Multimodal Learning</h3>
+          <p>VLM distillation, document AI, and visual question answering. Teaching models to reason jointly across vision and language.</p>
+        </div>
+        <div class="interest-card reveal">
+          <div class="interest-icon">⚡</div>
+          <h3>Efficient Inference</h3>
+          <p>Quantization (GPTQ, AWQ), speculative decoding, and KV-cache optimization. Making large models fast enough to deploy at the edge.</p>
+        </div>
+        <div class="interest-card reveal">
+          <div class="interest-icon">🧩</div>
+          <h3>Architecture Design</h3>
+          <p>Mixture-of-Experts, sparse models, and routing strategies. Understanding how model architectures shape capabilities and efficiency.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section id="experience" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">✦ Experience</span>
+        <h2 class="section-title">Mission Log</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="timeline">
+
+        <div class="timeline-item reveal">
+          <div class="timeline-dot"></div>
+          <div class="card">
+            <div class="timeline-meta">
+              <div>
+                <div class="timeline-role">AI Research Engineer</div>
+                <div class="timeline-company">SLB (AI Lab) · Clamart, France</div>
+              </div>
+              <div class="timeline-period">Nov 2023 — Present</div>
+            </div>
+            <p class="timeline-desc">NLP, Generative AI, LLMs — Leveraging NLP algorithms &amp; generative AI for information analysis</p>
+            <ul class="timeline-bullets">
+              <li><strong>VLM Distillation for Edge Deployment:</strong> Designed and supervised a distillation research project comparing black-box, white-box, and self-distillation pipelines with Gemma-3-4b as student model. Ran ablation studies across 3 distillation paradigms, achieving <strong style="color:var(--cyan)">+50% accuracy uplift</strong> on marker and depth extraction from geological report benchmarks.</li>
+              <li><strong>RAG for Patent Analysis:</strong> Architected retrieval-augmented generation systems for large-scale patent analysis with custom evaluation harness (NDCG, Recall@k, faithfulness), reducing IP review cycle time by accelerating prior art search.</li>
+              <li><strong>Agentic Workflow for Drilling Intelligence:</strong> Built multimodal agentic pipeline to extract and classify drilling activity highlights, integrate bit-specific metadata, and run automated fact-checking to minimize hallucinations.</li>
+              <li><strong>Personalized Learning Agent:</strong> Designed agentic workflows for CTI candidates with multimodal retrieval and dynamic learning roadmap generation, tailored by level, job title, and modality.</li>
+              <li><strong>Infrastructure &amp; MLOps:</strong> Distributed deployment with Kubernetes, Azure CI/CD, and Docker for reproducible releases across environments.</li>
+            </ul>
+            <div class="tech-chips">
+              <span class="chip">GPT-4o</span><span class="chip">LLaMA</span><span class="chip">Gemini</span>
+              <span class="chip">PyTorch</span><span class="chip">TRL</span><span class="chip">Unsloth</span>
+              <span class="chip">vLLM</span><span class="chip">Kubernetes</span><span class="chip">Azure</span><span class="chip">W&amp;B</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <div class="timeline-dot"></div>
+          <div class="card">
+            <div class="timeline-meta">
+              <div>
+                <div class="timeline-role">AI Research Engineer Intern</div>
+                <div class="timeline-company">SLB (AI Lab) · Clamart, France</div>
+              </div>
+              <div class="timeline-period">Apr 2023 — Oct 2023</div>
+            </div>
+            <p class="timeline-desc">Document AI: Multimodal Pre-trained Transformer Models for Energy Industry</p>
+            <ul class="timeline-bullets">
+              <li>Fine-tuned Donut (OCR-free transformer) on energy documents, achieving <strong style="color:var(--cyan)">91% accuracy</strong> and <strong style="color:var(--cyan)">82% F1-score</strong>. Designed synthetic table generator for data augmentation.</li>
+              <li>Fine-tuned Donut for VQA on energy documents; designed evaluation harness with per-category breakdown and error analysis.</li>
+              <li>Fine-tuned LLaMA-2 with LoRA for QA; benchmarked against zero-shot Qwen-VL baseline (52% F1) to quantify fine-tuning gains.</li>
+              <li>Work published at <strong style="color:var(--gold)">EAGE 2024</strong> Annual Conference &amp; Exhibition.</li>
+            </ul>
+            <div class="tech-chips">
+              <span class="chip">Donut</span><span class="chip">LLaMA-2</span><span class="chip">LoRA</span>
+              <span class="chip">PEFT</span><span class="chip">Transformers</span><span class="chip">PyTorch</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">✦ Projects</span>
+        <h2 class="section-title">Open Source Missions</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="projects-grid">
+
+        <div class="project-card reveal">
+          <div class="project-header">
+            <div class="project-icon">⚖️</div>
+            <span class="project-status status-active">Active</span>
+          </div>
+          <h3>llm-alignment-from-scratch</h3>
+          <p>DPO, GRPO, and reward modeling implemented from scratch in pure PyTorch on small models (GPT-2, SmolLM). Includes loss curves, ablation studies, and research write-up.</p>
+          <div class="tech-chips">
+            <span class="chip">PyTorch</span><span class="chip">DPO</span><span class="chip">GRPO</span>
+          </div>
+          <div class="project-footer">
+            <span class="project-lang"><span class="lang-dot lang-python"></span>Python</span>
+            <a href="https://github.com/nour-el-kamel/llm-alignment-from-scratch" target="_blank" class="project-link">
+              GitHub →
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-header">
+            <div class="project-icon">👁️</div>
+            <span class="project-status status-active">Active</span>
+          </div>
+          <h3>vlm-distillation-benchmark</h3>
+          <p>Systematic comparison of black-box, white-box, and self-distillation for VLMs on DocVQA and ChartQA. Includes a proper evaluation harness with rigorous benchmarking methodology.</p>
+          <div class="tech-chips">
+            <span class="chip">Unsloth</span><span class="chip">TRL</span><span class="chip">Gemma-3</span>
+          </div>
+          <div class="project-footer">
+            <span class="project-lang"><span class="lang-dot lang-python"></span>Python</span>
+            <a href="https://github.com/nour-el-kamel/vlm-distillation-benchmark" target="_blank" class="project-link">
+              GitHub →
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-header">
+            <div class="project-icon">🧩</div>
+            <span class="project-status status-building">Building</span>
+          </div>
+          <h3>moe-from-scratch</h3>
+          <p>Small Mixture-of-Experts transformer with load balancing loss, auxiliary losses, and expert routing analysis. Trained on language modeling with dense baseline comparison.</p>
+          <div class="tech-chips">
+            <span class="chip">PyTorch</span><span class="chip">MoE</span><span class="chip">Transformers</span>
+          </div>
+          <div class="project-footer">
+            <span class="project-lang"><span class="lang-dot lang-python"></span>Python</span>
+            <a href="https://github.com/nour-el-kamel/moe-from-scratch" target="_blank" class="project-link">
+              GitHub →
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-header">
+            <div class="project-icon">⚡</div>
+            <span class="project-status status-planned">Planned</span>
+          </div>
+          <h3>efficient-llm-inference</h3>
+          <p>Benchmarked exploration of quantization (GPTQ, AWQ, llama.cpp), speculative decoding, and KV-cache optimization with latency/throughput comparisons and vLLM profiling.</p>
+          <div class="tech-chips">
+            <span class="chip">vLLM</span><span class="chip">GPTQ</span><span class="chip">AWQ</span>
+          </div>
+          <div class="project-footer">
+            <span class="project-lang"><span class="lang-dot lang-python"></span>Python</span>
+            <a href="https://github.com/nour-el-kamel" target="_blank" class="project-link">
+              Coming Soon →
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-header">
+            <div class="project-icon">🔍</div>
+            <span class="project-status status-planned">Planned</span>
+          </div>
+          <h3>rag-evaluation-suite</h3>
+          <p>Proper RAG evaluation framework covering retrieval (NDCG, Recall@k) and generation metrics (faithfulness, relevance). Benchmarked against RAGAS, ARES, and TruLens.</p>
+          <div class="tech-chips">
+            <span class="chip">RAG</span><span class="chip">NDCG</span><span class="chip">RAGAS</span>
+          </div>
+          <div class="project-footer">
+            <span class="project-lang"><span class="lang-dot lang-python"></span>Python</span>
+            <a href="https://github.com/nour-el-kamel" target="_blank" class="project-link">
+              Coming Soon →
+            </a>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-header">
+            <div class="project-icon">🔒</div>
+            <span class="project-status status-planned">Academic</span>
+          </div>
+          <h3>Private ML via Secure MPC</h3>
+          <p>Logistic regression on Criteo's 88M-observation click dataset under secure multi-party computation using CrypTen. Benchmarked accuracy/latency trade-offs vs. standard PyTorch.</p>
+          <div class="tech-chips">
+            <span class="chip">CrypTen</span><span class="chip">PyTorch</span><span class="chip">MPC</span>
+          </div>
+          <div class="project-footer">
+            <span class="project-lang"><span class="lang-dot lang-python"></span>Python</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Publications -->
+  <section id="publications" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">✦ Research</span>
+        <h2 class="section-title">Publications</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="pub-card reveal">
+        <div class="pub-icon">📄</div>
+        <div>
+          <span class="pub-venue">EAGE 2024</span>
+          <h3 class="pub-title">Towards structured information extraction using OCR-free transformer model for energy documents</h3>
+          <p class="pub-meta">
+            European Association of Geoscientists &amp; Engineers, 85th EAGE Annual Conference &amp; Exhibition, Jun 2024, Volume 2024, p.1–5
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Education -->
+  <section id="education" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">✦ Education</span>
+        <h2 class="section-title">Academic Trajectory</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="edu-grid">
+        <div class="edu-card reveal">
+          <div class="edu-icon">🎓</div>
+          <h3>Master 2 in Data Sciences</h3>
+          <div class="edu-school">Institut Polytechnique de Paris (École Polytechnique)</div>
+          <div class="edu-period">Sep 2022 — Dec 2023 · Palaiseau</div>
+          <p class="edu-courses">Optimization, Statistics, Deep Learning, Computer Vision, Big Data</p>
+        </div>
+        <div class="edu-card reveal">
+          <div class="edu-icon">🔭</div>
+          <h3>Engineering Degree</h3>
+          <div class="edu-school">Telecom Paris</div>
+          <div class="edu-period">Sep 2021 — Dec 2023 · Palaiseau</div>
+          <p class="edu-courses">Machine Learning, Databases, Digital Finance, Data Visualization, Statistics, Microeconomics</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section id="skills" class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">✦ Skills</span>
+        <h2 class="section-title">Tech Stack</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="card reveal">
+        <div class="skills-grid">
+          <div class="skill-group">
+            <h3>Training</h3>
+            <div class="skill-tags">
+              <span class="skill-tag">PyTorch</span><span class="skill-tag">TensorFlow</span>
+              <span class="skill-tag">Transformers</span><span class="skill-tag">PEFT</span>
+              <span class="skill-tag">TRL</span><span class="skill-tag">Unsloth</span>
+              <span class="skill-tag">DeepSpeed</span><span class="skill-tag">Accelerate</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <h3>Inference &amp; Serving</h3>
+            <div class="skill-tags">
+              <span class="skill-tag">vLLM</span><span class="skill-tag">llama.cpp</span>
+              <span class="skill-tag">GGUF</span><span class="skill-tag">GPTQ</span><span class="skill-tag">AWQ</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <h3>Evaluation &amp; Tracking</h3>
+            <div class="skill-tags">
+              <span class="skill-tag">W&amp;B</span><span class="skill-tag">TensorBoard</span>
+              <span class="skill-tag">lm-eval-harness</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <h3>Infra &amp; DevOps</h3>
+            <div class="skill-tags">
+              <span class="skill-tag">Kubernetes</span><span class="skill-tag">Docker</span>
+              <span class="skill-tag">Azure CI/CD</span><span class="skill-tag">AWS</span>
+              <span class="skill-tag">Git</span><span class="skill-tag">Linux</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <h3>Data &amp; ML</h3>
+            <div class="skill-tags">
+              <span class="skill-tag">Python</span><span class="skill-tag">NumPy</span>
+              <span class="skill-tag">Pandas</span><span class="skill-tag">Scikit-learn</span>
+              <span class="skill-tag">C/C++</span><span class="skill-tag">SQL</span>
+            </div>
+          </div>
+          <div class="skill-group">
+            <h3>Languages</h3>
+            <div class="skill-tags">
+              <span class="skill-tag">French 🇫🇷</span>
+              <span class="skill-tag">English 🇬🇧 (TOEIC 945)</span>
+              <span class="skill-tag">Arabic 🇹🇳</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">✦ Contact</span>
+        <h2 class="section-title">Let's Connect</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="contact-card reveal">
+        <p>Open to research collaborations, interesting problems, and research engineer roles at frontier AI labs.</p>
+        <div class="contact-links">
+          <a href="mailto:nourelkamelpro@gmail.com" class="contact-link">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg>
+            Email
+          </a>
+          <a href="https://linkedin.com/in/nour-elkamel" target="_blank" class="contact-link">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/></svg>
+            LinkedIn
+          </a>
+          <a href="https://github.com/nour-el-kamel" target="_blank" class="contact-link">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="https://huggingface.co/nour-elkamel" target="_blank" class="contact-link">
+            🤗 Hugging Face
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>Crafted with <span>♥</span> by Nour EL KAMEL · Paris, France</p>
+    </div>
+  </footer>
+
+  <script>
+    // ── Animated Starfield ──
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initStars(count = 220) {
+      stars = [];
+      for (let i = 0; i < count; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 1.5 + 0.2,
+          alpha: Math.random(),
+          speed: Math.random() * 0.008 + 0.002,
+          phase: Math.random() * Math.PI * 2,
+        });
+      }
+    }
+
+    function drawStars(t) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const s of stars) {
+        s.alpha = 0.3 + 0.7 * Math.abs(Math.sin(t * s.speed + s.phase));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(220, 220, 255, ${s.alpha})`;
+        ctx.fill();
+      }
+      // Occasional bright stars with cross glow
+      if (stars.length > 50) {
+        const bright = stars.slice(0, 12);
+        for (const s of bright) {
+          const glow = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 6);
+          glow.addColorStop(0, `rgba(150, 200, 255, ${s.alpha * 0.6})`);
+          glow.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r * 6, 0, Math.PI * 2);
+          ctx.fillStyle = glow;
+          ctx.fill();
+        }
+      }
+    }
+
+    let raf;
+    function animate(t) {
+      drawStars(t * 0.001);
+      raf = requestAnimationFrame(animate);
+    }
+
+    resize();
+    initStars();
+    requestAnimationFrame(animate);
+    window.addEventListener('resize', () => { resize(); initStars(); });
+
+    // ── Shooting Stars ──
+    function shootingStar() {
+      const x = Math.random() * canvas.width * 0.8;
+      const y = Math.random() * canvas.height * 0.4;
+      const len = 120 + Math.random() * 100;
+      const speed = 4 + Math.random() * 4;
+      let progress = 0;
+
+      function draw() {
+        progress += speed;
+        const ex = x + progress;
+        const ey = y + progress * 0.45;
+        const grad = ctx.createLinearGradient(ex, ey, ex - len, ey - len * 0.45);
+        grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.beginPath();
+        ctx.moveTo(ex, ey);
+        ctx.lineTo(ex - len, ey - len * 0.45);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        if (progress < canvas.width * 0.6) requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    setInterval(() => { if (Math.random() > 0.4) shootingStar(); }, 4000);
+
+    // ── Scroll Reveal ──
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    revealEls.forEach(el => observer.observe(el));
+
+    // ── Nav active state ──
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 120) current = s.id;
+      });
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + current
+          ? 'var(--cyan)' : '';
+      });
+    });
+  </script>
+</body>
+</html>
